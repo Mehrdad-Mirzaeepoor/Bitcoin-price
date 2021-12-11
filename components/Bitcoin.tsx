@@ -4,11 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { requestBitcoinPrice } from 'store/bitcoin/bitcoin.actions'
 import { selectBitcoinPrice } from 'store/bitcoin/bitcoin.selector'
 
-interface Props {
-  initialPrice: number
-}
-
-export const Bitcoin: React.FC<Props> = ({ initialPrice }) => {
+export const Bitcoin: React.FC = () => {
   const dispatch = useDispatch()
   const price = useSelector(selectBitcoinPrice)
 
@@ -18,10 +14,5 @@ export const Bitcoin: React.FC<Props> = ({ initialPrice }) => {
       clearTimeout(timer)
     }
   }, [])
-  return (
-    <div className="font-bold">
-      &nbsp;$
-      {(typeof window !== 'undefined' && price) || initialPrice}
-    </div>
-  )
+  return <div className="font-bold">&nbsp;{`$ ${price.toLocaleString()}`}</div>
 }

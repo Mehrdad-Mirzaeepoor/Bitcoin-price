@@ -1,14 +1,15 @@
-import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 
 import { Bitcoin } from 'components'
-import { BitcoinPriceResponse, httpService } from 'services/http'
+import {
+  requestBitcoinFailure,
+  requestBitcoinSuccess,
+} from 'store/bitcoin/bitcoin.actions'
+import { httpService } from 'services'
+import { BitcoinPriceResponse } from 'services/http'
+import { wrapper } from 'store'
 
-interface Props {
-  initialPrice: number
-}
-
-const Home: React.FC<Props> = ({ initialPrice }) => {
+const Home: React.FC = () => {
   return (
     <div className="w-screen h-screen">
       <Head>
@@ -17,7 +18,7 @@ const Home: React.FC<Props> = ({ initialPrice }) => {
 
       <main className="h-full flex flex-row justify-center items-center">
         <div>Current Price is : </div>
-        <Bitcoin initialPrice={initialPrice} />
+        <Bitcoin />
       </main>
     </div>
   )
@@ -25,15 +26,19 @@ const Home: React.FC<Props> = ({ initialPrice }) => {
 
 export default Home
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const {
-    data: {
-      data: { amount },
-    },
-  } = await httpService.get<BitcoinPriceResponse>('')
-  return {
-    props: {
-      initialPrice: parseInt(amount),
-    },
+export const getServerSideProps = wrapper.getServerSideProps(
+  (store) => async () => {
+    try {
+      const {
+        data: {
+          data: { amount },
+        },
+      } = await httpService.get<BitcoinPriceResponse>('')
+      store.dispatch(requestBitcoinSuccess(parseInt(amount)))
+    } catch (error) {
+      store.dispatch(requestBitcoinFailure(error.message))
+    }
+
+    return { props: {} }
   }
-}
+)

@@ -21,6 +21,7 @@ const requestBitcoinPriceWorker = function* (): SagaIterator {
       yield delay(2000)
     } catch (error) {
       yield put(requestBitcoinFailure(error.message))
+      yield delay(2000)
     }
   }
 }
